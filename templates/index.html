@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Query Classification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='image.jpg') }}" alt="Legal Illustration" class="header-img">
+        <h1>Legal Query Classification</h1>
+        <form method="POST" action="/classify" id="classifyForm">
+            <textarea name="text" placeholder="Enter your legal query here" required></textarea>
+            <button type="submit">Classify</button>
+        </form>
+        <script>
+            const textarea = document.querySelector("textarea");
+            const form = document.getElementById("classifyForm");
+            textarea.addEventListener("keydown", function(event){
+                if (event.key === "Enter" && !event.shiftkey) {
+                    event.preventDefault();
+                    form.submit();
+                }
+            })
+        </script>
+        {% if result %}
+        <div class="result-box">
+            <p><strong>Query:</strong> "{{result.query}}"</p>
+            <p><strong>Predicted Category:</strong> {{ result.category }}</p>
+            <p><strong>Language Detected:</strong> {{ result.language }}</p>
+            <p><strong>Confidence:</strong> {{ result.confidence }}%</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

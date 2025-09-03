@@ -8,30 +8,94 @@
 </head>
 <body>
     <div class="container">
-        <img src="{{ url_for('static', filename='image.jpg') }}" alt="Legal Illustration" class="header-img">
-        <h1>Legal Query Classification</h1>
-        <form method="POST" action="/classify" id="classifyForm">
-            <textarea name="text" placeholder="Enter your legal query here" required></textarea>
-            <button type="submit">Classify</button>
-        </form>
-        <script>
-            const textarea = document.querySelector("textarea");
-            const form = document.getElementById("classifyForm");
-            textarea.addEventListener("keydown", function(event){
-                if (event.key === "Enter" && !event.shiftkey) {
-                    event.preventDefault();
-                    form.submit();
-                }
-            })
-        </script>
-        {% if result %}
-        <div class="result-box">
-            <p><strong>Query:</strong> "{{result.query}}"</p>
-            <p><strong>Predicted Category:</strong> {{ result.category }}</p>
-            <p><strong>Language Detected:</strong> {{ result.language }}</p>
-            <p><strong>Confidence:</strong> {{ result.confidence }}%</p>
+        <div class="header">
+            <span class="header-icon">⚖️</span>
+            <h1>Canadian Legal Query Classifier</h1>
+            <p class="subtitle">AI-powered classification for legal queries</p>
         </div>
+        
+        <form method="POST" id="query-form" action="/classify">
+            <div class="form-group">
+                <label for="text">Enter your legal query:</label>
+                <textarea 
+                    name="text" 
+                    id="text" 
+                    placeholder="e.g., What are my rights if I'm being evicted from my rental house?"
+                    required>{{ result.query if result and result.query else ''}}</textarea>
+            </div>
+            <button type="submit" class="btn">Classify</button>
+        </form>
+
+        
+        {% if result %}
+            {% if result.error %}
+                <div class="error-box">
+                    <strong>Error:</strong> {{ result.error }}
+                </div>
+            {% else %}
+                <div class="result-box">
+                    <div class="result-header">
+                        <div class="result-query">
+                            "{{ result.query }}"
+                        </div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="result-item">
+                            <div class="label">Category</div>
+                            <div class="value">{{ result.category }}</div>
+                        </div>
+                        
+                        <div class="result-item">
+                            <div class="label">Language</div>
+                            <div class="value">{{ result.language|upper }}</div>
+                        </div>
+                    </div>
+
+                    {% if result.resources and result.resources.links %}
+                        <div class="resources-section">
+                            <h3 class="resources-title">{{ result.resources.title }}</h3>
+                            <ul class="resources-list">
+                                {% for link in result.resources.links %}
+                                    <li class="resource-item">
+                                        <a href="{{ link.url }}" target="_blank" class="resource-link">
+                                            {{ link.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
         {% endif %}
+
+        <div class="footer">
+            <p style="margin-top: 8px; font-size: 12px;">Cet outil fournit une classification générale des catégories juridiques et des ressources. Pour des conseils juridiques spécifiques, consultez un avocat qualifié.</p>
+            <p style="margin-top: 8px; font-size: 12px;">This tool provides general legal category classification and resources. For specific legal advice, consult with a qualified lawyer.</p>
+        </div>
+        
     </div>
+    <script>
+            const textarea = document.getElementById('text');
+            textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Focus textarea on page load 
+            window.addEventListener('load', function() {
+                textarea.focus();
+            });
+    </script>
+    <script>
+    document.getElementById("text").addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // Stop new line
+            document.getElementById("query-form").submit(); // Submit the form
+        }
+    });
+    </script>
+    
 </body>
 </html>
